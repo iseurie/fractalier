@@ -1,5 +1,4 @@
 #Fractalier
-----
 
 _Fractalier_ is a web service allowing users to more thoroughly explore fractals 
 and employ more artistic license in creating custom renders of fractals by 
