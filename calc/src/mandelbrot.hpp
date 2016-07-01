@@ -1,7 +1,7 @@
 #include "point.hpp"
 
 namespace calc::mandelbrot {
-	class MandelPoint : calc::Point {
+	class MandelPoint : Point {
 		public:
 			MandelPoint(int x, int y);
 			MandelPoint(calc::Point*);

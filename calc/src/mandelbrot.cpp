@@ -2,9 +2,10 @@
 #include "point.hpp"
 
 using namespace std;
+using namespace calc;
 
 namespace calc::mandelbrot {
-	MandelPoint::MandelPoint (Point* coords) : calc::Point(coords->a, coords->b) {
+	MandelPoint::MandelPoint (Point* coords) : Point(coords->a, coords->b) {
 		this->a = coords->a;
 		this->b = coords->b;
 		iters = 0;
@@ -12,7 +13,7 @@ namespace calc::mandelbrot {
 		magnitude = 0.0;
 	}
 	
-	MandelPoint::MandelPoint(int x, int y) : calc::Point(x, y) {
+	MandelPoint::MandelPoint(int x, int y) : Point(x, y) {
 		this->a = x;
 		this->b = y;
 		iters = 0;
