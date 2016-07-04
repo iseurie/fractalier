@@ -38,6 +38,7 @@ void Mandelbrot::render(const unsigned int* p, unsigned int w, unsigned int h) {
 
 vector<vector<unsigned int>>* Mandelbrot::render(unsigned int w, unsigned int h) {
 	vector<vector<unsigned int>> map;
+	map.resize( h, vector<unsigned int>(w) );
 	for(unsigned int row = 0; row < h; ++row) {
 		/* determine the imaginary value of row 'row,' dividing the
 		 * extense of the parent fractal region by the rendering height
@@ -52,6 +53,3 @@ vector<vector<unsigned int>>* Mandelbrot::render(unsigned int w, unsigned int h)
 	}
 	return &map;
 }
-		
-		
-
