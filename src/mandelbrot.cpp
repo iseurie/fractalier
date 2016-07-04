@@ -36,8 +36,7 @@ void Mandelbrot::render(const unsigned int* p, unsigned int w, unsigned int h) {
 }
 */
 
-vector<vector<unsigned int>> 
-Mandelbrot::render(unsigned int w, unsigned int h) {
+vector<vector<unsigned int>>* Mandelbrot::render(unsigned int w, unsigned int h) {
 	vector<vector<unsigned int>> map;
 	map.resize( h, vector<unsigned int>(w) );
 	for(unsigned int row = 0; row < h; ++row) {
@@ -52,5 +51,5 @@ Mandelbrot::render(unsigned int w, unsigned int h) {
 			map[row][col] = eval(complex<double>(real, imag));
 		}
 	}
-	return map;
+	return &map;
 }

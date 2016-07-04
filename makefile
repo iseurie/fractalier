@@ -9,5 +9,8 @@ CXXHDRS:=$(wildcard src/*.hpp src/hdr/*.hpp include/*.hpp)
 fractalier-gen : $(CXXOBJS)
 	$(CCXX) -o $@ -g $(CXXFLAGS) $(CXXOBJS) $(LDFLAGS)
 
+test-mandelbrot : test/test.cpp
+	$(CCXX) -o $@ -g $(CXXFLAGS) -Itest
+
 $(CXXOBJS) : $(CXXSRCS) $(CXXHDRS)
 	$(CCXX) -o $@ $^ $(CXXFLAGS) $(CXXHDRS)
