@@ -5,15 +5,13 @@
 
 using namespace std;
 
-Mandelbrot::Mandelbrot(const complex<double>& anchor, const complex<double>& extent, unsigned int depth) 
-{
+Mandelbrot::Mandelbrot(const complex<double>& anchor, const complex<double>& extent, unsigned int depth) {
 	this->min = anchor;
 	this->mag = extent;
 	this->maxIters = depth;
 }
 
-unsigned int Mandelbrot::eval(const complex<double>& c) 
-{
+unsigned int Mandelbrot::eval(const complex<double>& c) {
 	//sample the given complex coordinate.
 	unsigned int ret = 0;
 	complex<double> z(0.0);
@@ -24,9 +22,21 @@ unsigned int Mandelbrot::eval(const complex<double>& c)
 	return ret;
 }
 
-vector<vector<unsigned int>>
-Mandelbrot::render(unsigned int w, unsigned int h)
-{
+/*
+void Mandelbrot::render(const unsigned int* p, unsigned int w, unsigned int h) {
+	for(unsigned int row = 0; row < h; ++row) {
+		double imag = min.imag() + row * (mag.imag() / h); 
+		//'unsigned int* rowp = *p + row * w
+		unsigned int* rowp = &p[row * w];
+		for(unsigned int col = 0; col < w; ++col) {
+			double real = min.real() + col * (mag.real() / w);
+			rowp[col] = eval(complex(real, imag);
+		}
+	}
+}
+*/
+
+vector<vector<unsigned int>> Mandelbrot::render(unsigned int w, unsigned int h) {
 	vector<vector<unsigned int>> map;
 	map.resize( h, vector<unsigned int>(w) );
 	for(unsigned int row = 0; row < h; ++row) {
