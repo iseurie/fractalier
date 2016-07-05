@@ -2,9 +2,9 @@
 #include <array>
 
 #include "colormapping.hpp"
-#include "Mandelbrot.hpp"
+#include "mandelbrot.hpp"
 
-void
+int
 main()
 {
     Mandelbrot canonical( std::complex<double>( -2.2, -1.7 ), std::complex<double>( 3.4, 2.9 ), 255 );
@@ -20,13 +20,17 @@ main()
     }
 
     FractintMapFile m;
-    if ( m.LoadMapFile( "blues.map" ) ) {
-        for ( unsigned int row = 0; row < imageIterations.size(); row++ ) {
-            for ( unsigned int col = 0; col < imageIterations[row].size(); col++ ) {
-                printf( "%02X", m.Map(imageIterations[row][col]).b );
-            }
-            printf( "\n" );
-        }
-        
+    if ( ! m.LoadMapFile( "blues.map" ) ) {
+        goto Error;
     }
+    for ( unsigned int row = 0; row < imageIterations.size(); row++ ) {
+        for ( unsigned int col = 0; col < imageIterations[row].size(); col++ ) {
+            printf( "%02X", m.Map(imageIterations[row][col]).b );
+        }
+        printf( "\n" );
+    }
+    return 0;
+Error:
+    return 1;
 }
+
