@@ -1,106 +1,85 @@
 #include <iostream>
-#include <array>
+#include <ctime>
 #include <vector>
+#include <cstdlib>
 
 #include <png.h>
+#include "tclap/CmdLine.h"
 
 #include "colormapping.hpp"
 #include "mandelbrot.hpp"
 
 using namespace std;
 
-bool
-WritePNGFile( 
-    const char *file_name, 
-    const vector<vector<unsigned int>>& v,
-    png_colorp palette
-)
-{
-    bool ret = false;
-    png_bytep *row_pointers = 0;
-    png_structp png_ptr = 0;
-    png_infop info_ptr = 0;
-    int height = v.size();
-    int width = v[0].size();
+int main(int argc, char* argv[]) {
+    complex<double> anchor, extense;
+    unsigned int rWidth, rHeight, depth;
+    char* mapFileName = 0;
+    char* outFileName = 0;
 
-    /* create file */
-    FILE *fp = fopen(file_name, "wb");
-    if (!fp) return false;
+    const complex<double> anchor_canonical = complex<double>(-2.2, -1.7);
+    const complex<double> extense_canonical = complex<double>(3.4, 2.9);
 
-    row_pointers = (png_bytep *) malloc( height*sizeof(*row_pointers) );
-    if ( ! row_pointers) goto Error;
-    memset( row_pointers, 0, height*sizeof(*row_pointers) );
-    for ( int row = 0; row < height; row++ ) {
-        row_pointers[row] = (png_bytep) malloc( width*sizeof(uint8_t) );
-        if ( NULL == row_pointers[row] ) goto Error;
-        for ( int col = 0; col < width; col++ ) {
-            row_pointers[row][col] = (uint8_t) v[row][col];
-        }
+    try {
+        stringstream namestrm;
+        namestrm << time(0) << ".png"; 
+
+        //Program description, argument delimiter, and version
+        TCLAP::CmdLine cmd("Fractalier rendering utility", ' ', "0.1");
+ 
+        TCLAP::ValueArg<double> arg_anchor_real("a", "anchor_real", 
+            "'real' value of anchor complex coordinate", false,
+            anchor_canonical.real(), "double", NULL);
+        TCLAP::ValueArg<double> arg_anchor_imag("s", "anchor_imag",
+            "'imaginary' value of anchor complex coordinate", false,
+            anchor_canonical.imag(), "double", NULL);
+        TCLAP::ValueArg<double> arg_extense_real("e", "extense_real",
+            "'real' value of fractal extense", false,
+            extense_canonical.real(), "double", NULL);
+        TCLAP::ValueArg<double> arg_extense_imag("r", "extense_imag",
+            "'imaginary' value of fractal extense", false,
+            extense_canonical.imag(), "double", NULL);
+
+        TCLAP::ValueArg<unsigned int> arg_depth("d", "depth",
+            "fractal computational depth", false, (unsigned int)255,
+            "unsigned integer", NULL);
+        TCLAP::ValueArg<unsigned int> arg_height("h", "height",
+            "output rendering heighti", true, (unsigned int)768,
+            "unsigned integer", NULL);
+        TCLAP::ValueArg<unsigned int> arg_width("w", "width",
+            "output rendering width", true, (unsigned int)1024,
+            "unsigned integer", NULL);
+        TCLAP::ValueArg<string> arg_mapfilename("m", "palette",
+            "color map file name", true, NULL,
+            "string", NULL);
+        TCLAP::ValueArg<string> arg_outfilename("o", "output",
+            "output file name", false, namestrm.str(),
+            "string", NULL);
+
+        cmd.add(arg_anchor_real);
+        cmd.add(arg_anchor_imag);
+        cmd.add(arg_extense_real);
+        cmd.add(arg_extense_imag);
+
+        cmd.add(arg_depth);
+        cmd.add(arg_height);
+        cmd.add(arg_width);
+        cmd.add(arg_mapfilename);
+        cmd.add(arg_outfilename);
+
+        cmd.parse(argc, argv);
+    } catch (const exception& e) {
+        //do stuf
     }
 
-    png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
-    if (!png_ptr) goto Error;
 
-    info_ptr = png_create_info_struct(png_ptr);
-    if (!info_ptr) goto Error;
-
-    png_set_PLTE( png_ptr, info_ptr, palette, 256 );
-
+//initial test code
 #if 0
-    if (setjmp(png_jmpbuf(png_ptr)))
-        abort_("[write_png_file] Error during init_io");
-#endif
-
-    png_init_io(png_ptr, fp);
-
-#if 0
-    if (setjmp(png_jmpbuf(png_ptr)))
-        abort_("[write_png_file] Error during writing header");
-#endif
-
-    png_set_IHDR(png_ptr, info_ptr, v[0].size(), v.size(),
-             8, PNG_COLOR_TYPE_PALETTE, PNG_INTERLACE_NONE,
-             PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
-
-    png_write_info(png_ptr, info_ptr);
-
-#if 0
-    if (setjmp(png_jmpbuf(png_ptr)))
-        abort_("[write_png_file] Error during writing bytes");
-#endif
-
-    png_write_image(png_ptr, row_pointers);
-
-#if 0
-    if (setjmp(png_jmpbuf(png_ptr)))
-        abort_("[write_png_file] Error during end of write");
-#endif
-
-    png_write_end(png_ptr, NULL);
-
-    ret = true;
-
-Error:
-    if ( png_ptr ) {
-        png_destroy_write_struct( &png_ptr, &info_ptr );
-    }
-    if ( row_pointers ) {
-        for (unsigned int y=0; y<height; y++)
-            free(row_pointers[y]);
-        free(row_pointers);
-    }
-
-    if ( fp ) fclose(fp);
-    return ret;
-}
-
-
-int
-main()
-{
-    Mandelbrot canonical( std::complex<double>( -2.2, -1.7 ), std::complex<double>( 3.4, 2.9 ), 255 ); 
+    Mandelbrot canonical( std::complex<double>( -2.2, -1.7 ), 
+        std::complex<double>( 3.4, 2.9 ), 255 ); 
 
     auto imageIterations = canonical.render( 1024, 768 );
+#endif
 
 #if 0
     for ( unsigned int row = 0; row < imageIterations.size(); row++ ) {
@@ -112,19 +91,22 @@ main()
 #endif
 
     FractintMapFile m;
-    if ( ! m.LoadMapFile( "blues.map" ) ) {
-        goto Error;
+    if ( ! m.LoadMapFile( mapFileName ) ) {
+        //goto Error;
+        return 1;
     }
     png_color palette[256];
-
     for ( int i = 0; i < 256; i++ ) {
         palette[i].red = m.Map(i).r;
         palette[i].green = m.Map(i).g;
         palette[i].blue = m.Map(i).b;
     }
-    WritePNGFile( "test.png", imageIterations, palette );
-#if 0
 
+    Mandelbrot toRender(anchor, extense, depth);
+    vector<vector<unsigned int>> renderMap = toRender.render(rWidth, rHeight);
+    toRender.WritePNGFile(outFileName, renderMap, (png_colorp)&palette);
+
+#if 0
     for ( unsigned int row = 0; row < imageIterations.size(); row++ ) {
         for ( unsigned int col = 0; col < imageIterations[row].size(); col++ ) {
             printf( "%02X", m.Map(imageIterations[row][col]).b );
@@ -134,7 +116,6 @@ main()
 #endif
 
     return 0;
-Error:
-    return 1;
+/*Error:
+    return 1;*/
 }
-
