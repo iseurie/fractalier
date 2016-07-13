@@ -20,42 +20,39 @@ int main(int argc, char* argv[]) {
     const complex<double> anchor_canonical = complex<double>(-2.2, -1.7);
     const complex<double> extense_canonical = complex<double>(3.4, 2.9);
 
-    try {
-        stringstream namestrm;
-        namestrm << time(0) << ".png"; 
-
-        //Program description, argument delimiter, and version
-        TCLAP::CmdLine cmd("Fractalier rendering utility", ' ', "0.1");
+    stringstream namestrm;
+    namestrm << time(0) << ".png"; 
+    //Program description, argument delimiter, and version
+    TCLAP::CmdLine cmd("Fractalier rendering utility", ' ', "0.1");
  
-        TCLAP::ValueArg<double> arg_anchor_real("a", "anchor_real", 
-            "'real' value of anchor complex coordinate", false,
-            anchor_canonical.real(), "double", NULL);
-        TCLAP::ValueArg<double> arg_anchor_imag("s", "anchor_imag",
-            "'imaginary' value of anchor complex coordinate", false,
-            anchor_canonical.imag(), "double", NULL);
-        TCLAP::ValueArg<double> arg_extense_real("e", "extense_real",
-            "'real' value of fractal extense", false,
-            extense_canonical.real(), "double", NULL);
-        TCLAP::ValueArg<double> arg_extense_imag("r", "extense_imag",
-            "'imaginary' value of fractal extense", false,
-            extense_canonical.imag(), "double", NULL);
-
-        TCLAP::ValueArg<unsigned int> arg_depth("d", "depth",
-            "fractal computational depth", false, (unsigned int)255,
-            "unsigned integer", NULL);
-        TCLAP::ValueArg<unsigned int> arg_height("h", "height",
-            "output rendering heighti", true, (unsigned int)768,
-            "unsigned integer", NULL);
-        TCLAP::ValueArg<unsigned int> arg_width("w", "width",
-            "output rendering width", true, (unsigned int)1024,
-            "unsigned integer", NULL);
-        TCLAP::ValueArg<string> arg_mapfilename("m", "palette",
-            "color map file name", true, NULL,
-            "string", NULL);
-        TCLAP::ValueArg<string> arg_outfilename("o", "output",
-            "output file name", false, namestrm.str(),
-            "string", NULL);
-
+    TCLAP::ValueArg<double> arg_anchor_real("a", "anchor_real", 
+        "'real' value of anchor complex coordinate", false,
+        anchor_canonical.real(), "double", NULL);
+    TCLAP::ValueArg<double> arg_anchor_imag("s", "anchor_imag",
+        "'imaginary' value of anchor complex coordinate", false,
+        anchor_canonical.imag(), "double", NULL);
+    TCLAP::ValueArg<double> arg_extense_real("e", "extense_real",
+        "'real' value of fractal extense", false,
+        extense_canonical.real(), "double", NULL);
+    TCLAP::ValueArg<double> arg_extense_imag("r", "extense_imag",
+        "'imaginary' value of fractal extense", false,
+        extense_canonical.imag(), "double", NULL);
+    TCLAP::ValueArg<unsigned int> arg_depth("d", "depth",
+        "fractal computational depth", false, (unsigned int)255,
+        "unsigned integer", NULL);
+    TCLAP::ValueArg<unsigned int> arg_height("h", "height",
+        "output rendering heighti", true, (unsigned int)768,
+        "unsigned integer", NULL);
+    TCLAP::ValueArg<unsigned int> arg_width("w", "width",
+        "output rendering width", true, (unsigned int)1024,
+        "unsigned integer", NULL);
+    TCLAP::ValueArg<string> arg_mapfilename("m", "palette",
+        "color map file name", true, "blues.map",
+        "string", NULL);
+    TCLAP::ValueArg<string> arg_outfilename("o", "output",
+        "output file name", false, namestrm.str(),
+        "string", NULL);
+    try {
         cmd.add(arg_anchor_real);
         cmd.add(arg_anchor_imag);
         cmd.add(arg_extense_real);
@@ -90,7 +87,18 @@ int main(int argc, char* argv[]) {
     }
 #endif
 
+    *outFileName = *arg_outfilename.getValue().c_str();
+    *mapFileName = *arg_mapfilename.getValue().c_str();
+    rWidth = arg_width.getValue();
+    rHeight = arg_height.getValue();
+    depth = arg_depth.getValue();
+    anchor = complex<double>(arg_anchor_real.getValue(), 
+                                    arg_anchor_imag.getValue());
+    extense = complex<double>(arg_extense_real.getValue(),
+                                    arg_extense_imag.getValue());
+
     FractintMapFile m;
+
     if ( ! m.LoadMapFile( mapFileName ) ) {
         //goto Error;
         return 1;
@@ -101,6 +109,7 @@ int main(int argc, char* argv[]) {
         palette[i].green = m.Map(i).g;
         palette[i].blue = m.Map(i).b;
     }
+
 
     Mandelbrot toRender(anchor, extense, depth);
     vector<vector<unsigned int>> renderMap = toRender.render(rWidth, rHeight);
