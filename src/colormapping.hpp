@@ -1,5 +1,7 @@
 #include <stdint.h>
 
+#ifndef HXX_COLORMAPPING
+#define HXX_COLORMAPPING
 class CRGBColor {
 public:
     CRGBColor() { }
@@ -31,3 +33,4 @@ public:
 private:
     CRGBColor m_colors[256];
 };
+#endif

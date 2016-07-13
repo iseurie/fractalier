@@ -7,7 +7,7 @@ FractintMapFile::LoadMapFile( const char *s )
     bool ret = false;
     FILE *f = fopen( s, "r" );
     if  ( ! f ) 
-        goto Error;
+        return false;
     for ( int i = 0; i < 256; i++ ) {
         int r, g, b;
         char line[256];

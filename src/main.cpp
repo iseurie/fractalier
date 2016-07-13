@@ -14,8 +14,8 @@ using namespace std;
 int main(int argc, char* argv[]) {
     complex<double> anchor, extense;
     unsigned int rWidth, rHeight, depth;
-    char* mapFileName = 0;
-    char* outFileName = 0;
+    const char* mapFileName = 0;
+    const char* outFileName = 0;
 
     const complex<double> anchor_canonical = complex<double>(-2.2, -1.7);
     const complex<double> extense_canonical = complex<double>(3.4, 2.9);
@@ -87,8 +87,8 @@ int main(int argc, char* argv[]) {
     }
 #endif
 
-    *outFileName = *arg_outfilename.getValue().c_str();
-    *mapFileName = *arg_mapfilename.getValue().c_str();
+    outFileName = arg_outfilename.getValue().c_str();
+    mapFileName = arg_mapfilename.getValue().c_str();
     rWidth = arg_width.getValue();
     rHeight = arg_height.getValue();
     depth = arg_depth.getValue();
