@@ -1,8 +1,7 @@
 #Fractalier
 
 _Fractalier_ is a web service allowing users to more thoroughly explore fractals, leveraging the power of the cloud to offload the prohibitive demand of extremely 
-high-resolution and precise custom renderings. There are three components of the implementation, these being the fractal rendering and calculation decoupled in 
-the backend, and the clients, which will interface via RFC 6455 websocket protocol with the server-side components. Clients will pass generation and rendering 
-parameters, to servers, returning bitmap deltas and allowing clients to display the resulting bitmap to the user in a live feed. It will be supported by a 
-freemium business model, likely with advertisements implemented client-side and perhaps a fee to allow users to waive them, or payments to unlock higher rendering 
-resolution and fractal calculation precision.
+high-resolution and precise custom renderings. There are three components of the implementation, these being the fractal rendering and calculation, decoupled in 
+the backend, and a REST interface, allowing HTTP requests to be made specifying parameters for fractal computations and rendering to generate bitmap resources 
+which can then be served to clients and arhived. A premium real-time implementation of RFC 6455 Websocket protocol is under consideration, as well as monetization 
+under a 'freemium' model.
