@@ -3,6 +3,8 @@
 #include <vector>
 #include <cstdlib>
 
+#include <string.h>
+
 #include <png.h>
 #include "tclap/CmdLine.h"
 
@@ -15,11 +17,10 @@ int main(int argc, char* argv[]) {
     complex<double> anchor, extense;
     unsigned int rWidth, rHeight, depth;
     const char* mapFileName = 0;
-    const char* outFileName = 0;
+    string outFileName;
 
     const complex<double> anchor_canonical = complex<double>(-2.2, -1.7);
     const complex<double> extense_canonical = complex<double>(3.4, 2.9);
-
     stringstream namestrm;
     namestrm << time(0) << ".png"; 
 
@@ -40,13 +41,13 @@ int main(int argc, char* argv[]) {
             "'imaginary' value of fractal extense", false,
             extense_canonical.imag(), "double", NULL);
         TCLAP::ValueArg<unsigned int> arg_depth("d", "depth",
-            "fractal computational depth", false, (unsigned int)255,
+            "fractal computational depth", true, (unsigned int)255,
             "unsigned integer", NULL);
-        TCLAP::ValueArg<unsigned int> arg_height("y", "height",
-            "output rendering height", true, (unsigned int)768,
+        TCLAP::ValueArg<unsigned int> arg_height("y", "render_height",
+            "output rendering height", false, (unsigned int)768,
             "unsigned integer", NULL);
-        TCLAP::ValueArg<unsigned int> arg_width("w", "width",
-            "output rendering width", true, (unsigned int)1024,
+        TCLAP::ValueArg<unsigned int> arg_width("x", "render_width",
+            "output rendering width", false, (unsigned int)1024,
             "unsigned integer", NULL);
         TCLAP::ValueArg<string> arg_mapfilename("m", "palette",
             "color map file name", true, "blues.map",
@@ -68,7 +69,7 @@ int main(int argc, char* argv[]) {
 
         cmd.parse(argc, argv);
 
-        outFileName = arg_outfilename.getValue().c_str();
+        outFileName = arg_outfilename.getValue();
         mapFileName = arg_mapfilename.getValue().c_str();
         rWidth = arg_width.getValue();
         rHeight = arg_height.getValue();
@@ -78,7 +79,7 @@ int main(int argc, char* argv[]) {
         extense = complex<double>(arg_extense_real.getValue(),
                                         arg_extense_imag.getValue());
     } catch (const TCLAP::ArgException& e) {
-        cerr << "Error: " << e.error() << endl << e.argId() << endl;
+        cerr << e.error() << endl << e.argId() << endl;
     }
 
 
@@ -104,6 +105,7 @@ int main(int argc, char* argv[]) {
 
     if ( ! m.LoadMapFile( mapFileName ) ) {
         //goto Error;
+        cerr << "Error: Failed to load palette!" << endl;
         return 1;
     }
     png_color palette[256];
@@ -116,7 +118,7 @@ int main(int argc, char* argv[]) {
 
     Mandelbrot toRender(anchor, extense, depth);
     vector<vector<unsigned int>> renderMap = toRender.render(rWidth, rHeight);
-    toRender.WritePNGFile(outFileName, renderMap, (png_colorp)&palette);
+    toRender.WritePNGFile(outFileName.c_str(), renderMap, (png_colorp)&palette);
 
 #if 0
     for ( unsigned int row = 0; row < imageIterations.size(); row++ ) {
