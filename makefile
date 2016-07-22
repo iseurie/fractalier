@@ -1,6 +1,6 @@
 CCXX=g++
 CXXFLAGS=-Iinclude -Isrc/hdr -Isrc
-LDFLAGS=-lc -lpng
+LDFLAGS=-lc -lpng -lpthread
 
 BUILDDIR:=obj
 SRCDIR:=src

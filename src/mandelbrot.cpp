@@ -1,6 +1,9 @@
 #include <cmath>
 #include <complex> 
 #include <vector> 
+#include <thread>
+#include <iostream>
+#include <mutex>
 #include <cstring>
 #include <png.h>
 
@@ -25,6 +28,15 @@ unsigned int Mandelbrot::eval(const complex<double>& c) {
 	return ret;
 }
 
+unsigned int Mandelbrot::eval(const complex<double>& c, unsigned int d) {
+    unsigned int ret = 0;
+    complex<double> z(0.0);
+    while(norm(z) < 4.0 && ret < d) {
+        z = z * z + c;
+        ++ret;
+    }
+    return ret; 
+}
 /*
 void Mandelbrot::render(const unsigned int* p, unsigned int w, unsigned int h) {
 	for(unsigned int row = 0; row < h; ++row) {
@@ -120,6 +132,30 @@ Error:
     return ret;
 }
 
+void Mandelbrot::eval_srt(vector<vector<unsigned int>>& map, 
+        complex<double>& min, complex<double>& mag, unsigned int& d,
+        mutex& rMapMutex, mutex& frameMutex) {
+    rMapMutex.lock();
+    int h = map.size();
+    int w = map[0].size();
+    rMapMutex.unlock();
+    for(unsigned int row = 0; row < h; ++row) {
+        for(unsigned int col = 0; col < w; ++col) {
+            rMapMutex.lock();
+            if(map[row][col] == 0) {
+                rMapMutex.unlock();
+                frameMutex.lock();
+                double imag = min.imag() + row * (mag.imag() / h);
+                double real = min.real() + col * (mag.real() / w);
+                frameMutex.unlock();
+                rMapMutex.lock();
+                map[row][col] = eval(complex<double>(real, imag), d);
+                rMapMutex.unlock();
+            }
+        }
+    }
+}
+
 vector<vector<unsigned int>> Mandelbrot::render(unsigned int w, unsigned int h) {
 	vector<vector<unsigned int>> map;
 	map.resize( h, vector<unsigned int>(w) );
@@ -137,3 +173,30 @@ vector<vector<unsigned int>> Mandelbrot::render(unsigned int w, unsigned int h) 
 	}
 	return map;
 }
+
+vector<vector<unsigned int>> Mandelbrot::render(unsigned int w, unsigned int h,
+        unsigned short max_threads) {
+    vector<vector<unsigned int>> map;
+    mutex render_map_mutex;
+    mutex frame_prop_mutex;
+    map.resize(h, vector<unsigned int>(w));
+    thread threads[max_threads];
+    unsigned short currentThreads = 0;
+
+    cout << "Mandelbrot::render: Spawning "
+            << max_threads << " evaluator subroutines" << endl;
+
+    while(currentThreads < max_threads) {
+        threads[currentThreads] = thread(ref(eval_srt), 
+                ref(map), ref(min), ref(mag), ref(maxIters), 
+                ref(render_map_mutex), ref(frame_prop_mutex));
+        if(!threads[currentThreads].joinable()) {
+            cerr << "Mandelbrot::render: Failed to spawn child evaluator thread" 
+                    << " (index " << currentThreads << ')' << endl;
+        } else {
+            threads[currentThreads].join();
+            ++currentThreads;
+        }
+    }
+    return map;
+} 

@@ -2,6 +2,7 @@
 #include <ctime>
 #include <vector>
 #include <cstdlib>
+#include <thread>
 
 #include <string.h>
 
@@ -117,7 +118,9 @@ int main(int argc, char* argv[]) {
 
 
     Mandelbrot toRender(anchor, extense, depth);
-    vector<vector<unsigned int>> renderMap = toRender.render(rWidth, rHeight);
+    vector<vector<unsigned int>> renderMap = toRender.render(rWidth, rHeight, 
+            std::thread::hardware_concurrency());
+    cout << "Writing PNG output to '" << outFileName << "'..." << endl;
     toRender.WritePNGFile(outFileName.c_str(), renderMap, (png_colorp)&palette);
 
 #if 0
